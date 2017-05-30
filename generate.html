@@ -42,14 +42,93 @@
 			}
 			
 			var row, a, tempRow, reqID, testName, type, sarathi, featureDescription, module, subject, testSummary, preCondition, testSteps, priority, complexity, positiveNegative, testData, expectedResult, actualResult, subjective, isRegression, isUnitTestCase, isAutomated;
+			var flagLocalStorage = 0;
 		
+		
+			function MemberInfo(Reqid,Testname,Type,Sarathiid,Featuredesc,Module,Subject,Testsummary,Precondition,Teststeps,Priority,Complexity,Positive,Testdata,Expectedresult,Actualresult,Subjective,Regression,Unittc,Automated){
+				//this.FirstName=fName;
+				//this.LastName=lName;
+				//this.MemberId=memberId;   
+
+				this.Reqid = Reqid;
+				this.Testname = Testname;
+				this.Type = Type;
+				this.Sarathiid = Sarathiid;
+				this.Featuredesc = Featuredesc;
+				this.Module = Module;
+				this.Subject = Subject;
+				this.Testsummary = Testsummary;
+				this.Precondition = Precondition;
+				this.Teststeps = Teststeps;
+				this.Priority = Priority;
+				this.Complexity = Complexity;
+				this.Positive = Positive;
+				this.Testdata = Testdata;
+				this.Expectedresult = Expectedresult;
+				this.Actualresult = Actualresult;
+				this.Subjective = Subjective;
+				this.Regression = Regression;
+				this.Unittc = Unittc;
+				this.Automated = Automated;
+			}
 		
 			
 			function saveAsDraft(){
-				localStorage.setItem("test", "test local storage data");
-				alert(localStorage.getItem("test"));
+				//localStorage.setItem("test", "test local storage data");
+				//alert(localStorage.getItem("test"));
+				
+				var table = [];    
+				$("#testTable1").find('tr').each(function(index,item){
+			   
+					var Reqid=$(item).find('td').eq(0).text();
+					var Testname=$(item).find('td').eq(1).text();
+					var Type=$(item).find('td').eq(2).text();
+					var Sarathiid=$(item).find('td').eq(3).text();
+					var Featuredesc=$(item).find('td').eq(4).text();
+					var Module=$(item).find('td').eq(5).text();
+					var Subject=$(item).find('td').eq(6).text();
+					var Testsummary=$(item).find('td').eq(7).text();
+					var Precondition=$(item).find('td').eq(8).text();
+					var Teststeps=$(item).find('td').eq(9).text();
+					var Priority=$(item).find('td').eq(10).text();
+					var Complexity=$(item).find('td').eq(11).text();
+					var Positive=$(item).find('td').eq(12).text();
+					var Testdata=$(item).find('td').eq(13).text();
+					var Expectedresult=$(item).find('td').eq(14).text();
+					var Actualresult=$(item).find('td').eq(15).text();
+					var Subjective=$(item).find('td').eq(16).text();
+					var Regression=$(item).find('td').eq(17).text();
+					var Unittc=$(item).find('td').eq(18).text();
+					var Automated=$(item).find('td').eq(19).text();
+					table.push(new MemberInfo(Reqid,Testname,Type,Sarathiid,Featuredesc,Module,Subject,Testsummary,Precondition,Teststeps,Priority,Complexity,Positive,Testdata,Expectedresult,Actualresult,Subjective,Regression,Unittc,Automated))
+				});
+					  
+				localStorage.setItem('testCases', JSON.stringify(table));
+				//testCases = localStorage.getItem('testCases');
+				//testCases = JSON.parse(testCases);
+				
 			}
 			
+		
+			$( document ).ready(function() {
+				//alert( "ready!" );
+				var testCases = localStorage.getItem('testCases');
+				if(testCases == null)
+					return;
+				testCases = JSON.parse(testCases);
+				//alert(testCases.length);
+				//if(testCases.length > 0)
+				flagLocalStorage = 1;
+					
+				//alert(flagLocalStorage);
+				$.each(testCases , function(i, val) { 
+				  addRow(i, val);
+				});
+				
+				flagLocalStorage = 0;
+				
+			});
+		
 		
 		
 			function clear(){
@@ -109,7 +188,7 @@
 			
 			function deleteRow(){
 				var row1 = prompt("Enter Test Case Number to delete : ", "1");
-				var option = confirm("Are you sure you want to delete Test Case " + row1 + " ? \n\n(Test Names will be updated)\n\n");
+				var option = confirm("Are you sure you want to delete Test Case " + row1 + " ? \n(Test Names and Draft (Saved TCs) will be updated)\n");
 				if(!option){
 					return;
 				}
@@ -131,10 +210,13 @@
 				if ($('#testTable1 tr').length == 0) {
 				  disableFields();
 				}
+				
+				saveAsDraft();
+				
 			}
 			
 			function deleteTable(){
-				var confirmation = confirm("Are you sure you want to delete all Test Cases ?");
+				var confirmation = confirm("Are you sure you want to delete all Test Cases ? \n(Draft (Saved TCs) will be cleared)\n");
 				if(!confirmation){
 					return;
 				}
@@ -142,6 +224,8 @@
 				$("#testTable1 tr").remove();
 				disableFields();
 				bootstrap_alert.warning('<strong>Test Case(s) Deleted</strong> ', 'success', 4000);
+				
+				saveAsDraft();
 			}
 			
 			function disableFields(){
@@ -196,6 +280,10 @@
 				//alert(a.find('td:nth-child(2)').html());
 				document.getElementById("saveTC").disabled = true;
 				bootstrap_alert.warning('<strong>Test Case updated</strong> ', 'success', 4000);
+				
+				//Saving in Draft
+				saveAsDraft();
+				
 			}
 			
 			function rowSelection(){
@@ -238,70 +326,78 @@
 					document.getElementById("saveTC").disabled = false;
 					$('html,body').scrollTop(0);
 					bootstrap_alert.warning('<strong>Edit required fields and Save TC</strong> ', 'success', 4000);
+					
 				});
-			}
-			
-			
-			function MemberInfo(fName,lName,memberId){
-				this.FirstName=fName;
-				this.LastName=lName;
-				this.MemberId=memberId;    
 			}
 			
 			
 			function saveRow(){
 				//btn.innerHTML= "<td><button class='editbtn'>Edit</button></td>";
-				reqID.innerHTML= document.getElementById("reqID").value;
-				testName.innerHTML = "TC_" + document.getElementById("sarathi").value + "_" + row.rowIndex;
-				type.innerHTML = document.getElementById("testType").value;
-				sarathi.innerHTML = document.getElementById("sarathi").value;
-				featureDescription.innerHTML = document.getElementById("featureDescription").value;
-				module.innerHTML = document.getElementById("module").value;
-				subject.innerHTML = document.getElementById("subject").value;
-				//guiDB.innerHTML = "1";
-				testSummary.innerHTML = document.getElementById("testSummary").value;
-				preCondition.innerHTML = document.getElementById("preCondition").value;
-				testSteps.innerHTML = document.getElementById("testSteps").value;
-				priority.innerHTML = document.getElementById("priority").value;
-				complexity.innerHTML = document.getElementById("complexity").value;
-				positiveNegative.innerHTML = document.getElementById("positiveNegative").value;
-				testData.innerHTML = document.getElementById("testData").value;
-				expectedResult.innerHTML = document.getElementById("expectedResult").value;
-				actualResult.innerHTML = "";
-				subjective.innerHTML = "";
-				isRegression.innerHTML = document.getElementById("regression").value;
-				isUnitTestCase.innerHTML = document.getElementById("unitTC").value;
-				isAutomated.innerHTML = document.getElementById("isAutomated").value;
 				
+				//If there is no Local Storage data available, i.e : No Test Cases have been written yet
+				if(flagLocalStorage == 0){
+					reqID.innerHTML= document.getElementById("reqID").value;
+					testName.innerHTML = "TC_" + document.getElementById("sarathi").value + "_" + row.rowIndex;
+					type.innerHTML = document.getElementById("testType").value;
+					sarathi.innerHTML = document.getElementById("sarathi").value;
+					featureDescription.innerHTML = document.getElementById("featureDescription").value;
+					module.innerHTML = document.getElementById("module").value;
+					subject.innerHTML = document.getElementById("subject").value;
+					//guiDB.innerHTML = "1";
+					testSummary.innerHTML = document.getElementById("testSummary").value;
+					preCondition.innerHTML = document.getElementById("preCondition").value;
+					testSteps.innerHTML = document.getElementById("testSteps").value;
+					priority.innerHTML = document.getElementById("priority").value;
+					complexity.innerHTML = document.getElementById("complexity").value;
+					positiveNegative.innerHTML = document.getElementById("positiveNegative").value;
+					testData.innerHTML = document.getElementById("testData").value;
+					expectedResult.innerHTML = document.getElementById("expectedResult").value;
+					actualResult.innerHTML = "";
+					subjective.innerHTML = "";
+					isRegression.innerHTML = document.getElementById("regression").value;
+					isUnitTestCase.innerHTML = document.getElementById("unitTC").value;
+					isAutomated.innerHTML = document.getElementById("isAutomated").value;
+				}
+				else{
+					//alert("Localstorage present");
+					//alert(arguments[0] + arguments[1].Testname);
+					reqID.innerHTML = arguments[1].Reqid;
+					testName.innerHTML = arguments[1].Testname;
+					type.innerHTML = arguments[1].Type;
+					sarathi.innerHTML = arguments[1].Sarathiid;
+					featureDescription.innerHTML = arguments[1].Featuredesc;
+					module.innerHTML = arguments[1].Module;
+					subject.innerHTML = arguments[1].Subject;
+					//guiDB.innerHTML = "1";
+					testSummary.innerHTML = arguments[1].Testsummary;
+					preCondition.innerHTML = arguments[1].Precondition;
+					testSteps.innerHTML = arguments[1].Teststeps;
+					priority.innerHTML = arguments[1].Priority;
+					complexity.innerHTML = arguments[1].Complexity;
+					positiveNegative.innerHTML = arguments[1].Positive;
+					testData.innerHTML = arguments[1].Testdata;
+					expectedResult.innerHTML = arguments[1].Expectedresult;
+					actualResult.innerHTML = arguments[1].Actualresult;
+					subjective.innerHTML = arguments[1].Subjective;
+					isRegression.innerHTML = arguments[1].Regression;
+					isUnitTestCase.innerHTML = arguments[1].Unittc;
+					isAutomated.innerHTML = arguments[1].Automated;
+				}
 				
 				//Saving in Draft
-				var table = [];    
-				$("#testTable1").find('tr').each(function(index,item){
-			   
-					var fName=$(item).find('td').eq(0).text();
-					var lName=$(item).find('td').eq(1).text();
-					var memberId=$(item).find('td').eq(2).text();
-					table.push(new MemberInfo(fName,lName,memberId))
+				saveAsDraft();
+				
+			/*	$.each(testCases, function(index,item){   
+				   alert(item.Testname);
 				});
-					  
-			  //localStorage.setItem("testCases", JSON.stringify(table));
-				
-				//alert((JSON.parse(localStorage.getItem("testCases"))).fName);
-				
-				localStorage.setItem('testCases', JSON.stringify(table));
-				testCases = localStorage.getItem('testCases');
-				testCases = JSON.parse(testCases);
-				//alert(testCases.FirstName);
-				$.each(testCases, function(index,item){
-				   console.log(item.FirstName);
-				});
-				
+			*/
+			
 			}
 			
 					
 			function addRow() {
 			
-				if(document.getElementById("sarathi").value == "" || document.getElementById("module").value == "" || document.getElementById("featureDescription").value == "" || document.getElementById("subject").value == ""){
+				if((document.getElementById("sarathi").value == "" || document.getElementById("module").value == "" || document.getElementById("featureDescription").value == "" || document.getElementById("subject").value == "") && flagLocalStorage == 0){
 					alert("Please enter all mandatory fields");
 					return;
 				}
@@ -338,7 +434,7 @@
 				
 				//alert(row.rowIndex);
 				//Setting Variables values
-				saveRow();
+				saveRow(arguments[0], arguments[1]);
 				
 				document.getElementById("viewTC").disabled = false;
 				document.getElementById("exportTC").disabled = false;
@@ -490,7 +586,7 @@
 		<br/>
 		<div class="row">
 			<div class="col-md-12">
-				<input type="button" id="saveTC" onclick="saveTC()" value="Save TC" class="btn btn-success" style="float: right;margin-right: 1%" disabled/>
+				<input type="button" id="saveTC" onclick="saveTC()" value="Save TC" title="Click on any TC to Edit and Save" class="btn btn-success" style="float: right;margin-right: 1%" disabled/>
 			</div>
 		</div>
 		
@@ -501,10 +597,14 @@
 		
 		<div class="row">
 			<div class="col-md-12">
-				<em><strong><span style="font-size:120%">(**** Click on any Test Case to edit ****)</span></strong></em>
+				
+					<em><strong><span style="font-size:120%">(**** Click on any Test Case to edit ****)</span></strong></em><br/>
+					<em><strong><span style="font-size:120%">( Note : Test Cases are saved automatically in LocalStorage of browser. Still it is recommended to export and store Test Cases in external file )</span></strong></em><br/>
+				
+				<br/><br/>
 				<input type="button" id="deleteTable" onclick="deleteTable()" value="Delete All" class="btn btn-danger" style="float: right;margin-right: 1%" disabled/>
 				<input type="button" id="deleteRow" onclick="deleteRow()" value="Delete" class="btn btn-danger" style="float: right;margin-right: 1%" disabled/>
-				<input type="button" id="saveAsDraft" onclick="saveAsDraft()" value="Save as Draft" class="btn btn-primary" style="float: right;margin-right: 1%"/>
+				<!--<input type="button" id="saveAsDraft" onclick="saveAsDraft()" value="Save as Draft" class="btn btn-primary" style="float: right;margin-right: 1%"/>-->
 				<!--<input type="button" id="editTable" onclick="editTable()" value="Edit" class="btn btn-primary" style="float: right;margin-right: 1%" disabled/>-->
 			</div>
 		</div>
